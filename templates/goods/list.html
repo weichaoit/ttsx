@@ -1,0 +1,96 @@
+{% extends 'goods/base.html' %}
+
+{% block body %}
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+					{% for goods in news %}
+					<li>
+						<a href="/detail_{{ goods.id }}"><img src="/static/{{ goods.gpic }}"></a>
+						<h4><a href="/detail_{{ goods.id }}">{{ goods.gtitle }}</a></h4>
+						<div class="prize">{{ goods.gprice }}</div>
+					</li>
+                    {% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<div class="sort_bar">
+				<a href="/list_{{ typeinfo.id }}_{{ page.number }}_{{ 1 }}" class="{% if sort == '1' %} active {% endif %}" >默认</a>
+				<a href="/list_{{ typeinfo.id }}_{{ page.number }}_{{ 2 }}" class="{% if sort == '2' %} active {% endif %}" >价格</a>
+				<a href="/list_{{ typeinfo.id }}_{{ page.number }}_{{ 3 }}" class="{% if sort == '3' %} active {% endif %}" >人气</a>
+			</div>
+
+			<ul class="goods_type_list clearfix">
+                {% for goods in page %}
+				<li>
+					<a href="/detail_{{ goods.id }}" target="_blank"><img src="/static/{{ goods.gpic }}"></a>
+					<h4><a href="/detail_{{ goods.id }}">{{ goods.gtitle }}</a></h4>
+					<div class="operate">
+						<span class="prize">{{ goods.gprice }}</span>
+						<span class="unit">{{ goods.gprice }}/{{ goods.gunit }}</span>
+						<a href="javascript:;" class="add_goods" gid="{{ goods.id }}" count="1" title="加入购物车"></a>
+					</div>
+				</li>
+                {% endfor %}
+
+			</ul>
+
+			<div class="pagenation">
+                {% if page.has_previous %}
+				    <a href="/list_{{ typeinfo.id }}_{{ page.previous_page_number }}_{{ sort }}"><上一页</a>
+                {% endif %}
+
+                {% for p in paginator.page_range %}
+                    <a href="/list_{{ typeinfo.id }}_{{ p }}_{{ sort }}" {% if page.number == p %} class="active" {% endif %}>{{ p }}</a>
+                {% endfor %}
+
+                {% if page.has_next %}
+				    <a href="/list_{{ typeinfo.id }}_{{ page.next_page_number }}_{{ sort }}">下一页></a>
+                {% endif %}
+			</div>
+		</div>
+	</div>
+    <div class="add_jump"></div>
+    <script>
+    $(function () {
+        $('.add_goods').click(function () {
+            var cart_obj = $(this)
+            var add_x = $(this).offset().top;
+            var add_y = $(this).offset().left
+
+            var top_x = $('#show_count').offset().top-add_x+10
+            var top_y = $('#show_count').offset().left-add_y+150
+
+            $(this).css({'left':160,'top':-18,'display':'block','position':'relative'})
+
+            var gid = $(this).attr('gid');
+            var count = $(this).attr('count')
+
+            $(this).stop().animate({
+                'left':top_y + 7,
+                'top' : top_x + 7,
+
+            },800)
+            $.get('/cart/add/',{'gid':gid,'count':count},function (msg) {
+                $('#show_count').html(msg.count)
+            })
+            window.setTimeout(function () {
+                //cart_obj.css({'left':add_x,'top':add_y,'display':'block','position':'absolute'})
+                cart_obj.css({'display':'none'})
+            },900)
+
+        })
+    })
+    </script>
+
+{% endblock body %}

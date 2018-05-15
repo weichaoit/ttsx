@@ -1,0 +1,94 @@
+{% extends 'goods/base.html' %}
+
+{% block body %}
+	<div class="breadcrumb">
+		&nbsp;&nbsp;全部分类&nbsp;>&nbsp;搜索
+	</div>
+
+	<div class="main_wrap clearfix">
+		{% comment %}<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+					{% for goods in news %}
+					<li>
+						<a href="/detail_{{ goods.id }}"><img src="/static/{{ goods.gpic }}"></a>
+						<h4><a href="/detail_{{ goods.id }}">{{ goods.gtitle }}</a></h4>
+						<div class="prize">{{ goods.gprice }}</div>
+					</li>
+                    {% endfor %}
+				</ul>
+			</div>
+		</div>{% endcomment %}
+
+
+
+			<ul class="goods_type_list clearfix">
+                {% for goods in page %}
+
+				<li>
+					<a href="/detail_{{ goods.object.id }}" target="_blank"><img src="/static/{{ goods.object.gpic }}"></a>
+					<h4><a href="/detail_{{ goods.object.id }}">{{ goods.object.gtitle }}</a></h4>
+					<div class="operate">
+						<span class="prize">{{ goods.object.gprice }}</span>
+						<span class="unit">{{ goods.object.gprice }}/{{ goods.object.gunit }}</span>
+						<a href="javascript:;" class="add_goods" gid="{{ goods.object.id }}" count="1" title="加入购物车"></a>
+					</div>
+				</li>
+                {% endfor %}
+
+			</ul>
+
+			<div class="pagenation">
+                {%if page.has_previous%}
+				    <a href="/search/?q={{query}}&amp;page={{page.previous_page_number}}/"><上一页</a>
+				{%endif%}
+
+				{%for pindex in paginator.page_range%}
+                    {%if pindex == page.number%}
+                        <a href="#" class="active">{{pindex}}</a>
+                    {%else%}
+                        <a href="/search/?q={{query}}&amp;page={{pindex}}">{{pindex}}</a>
+                    {%endif%}
+				{%endfor%}
+
+				{%if page.has_next%}
+				    <a href="/search/?q={{query}}&amp;page={{page.next_page_number}}/">下一页></a>
+				{%endif%}
+			</div>
+
+	</div>
+    <div class="add_jump"></div>
+    <script>
+    $(function () {
+        $('.add_goods').click(function () {
+            var cart_obj = $(this)
+            var add_x = $(this).offset().top;
+            var add_y = $(this).offset().left
+
+            var top_x = $('#show_count').offset().top-add_x+10
+            var top_y = $('#show_count').offset().left-add_y+150
+
+            $(this).css({'left':160,'top':-18,'display':'block','position':'relative'})
+
+            var gid = $(this).attr('gid');
+            var count = $(this).attr('count')
+
+            $(this).stop().animate({
+                'left':top_y + 7,
+                'top' : top_x + 7,
+
+            },800)
+            $.get('/cart/add/',{'gid':gid,'count':count},function (msg) {
+                $('#show_count').html(msg.count)
+            })
+            window.setTimeout(function () {
+                //cart_obj.css({'left':add_x,'top':add_y,'display':'block','position':'absolute'})
+                cart_obj.css({'display':'none'})
+            },900)
+
+        })
+    })
+    </script>
+
+{% endblock body %}

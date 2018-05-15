@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block head %}
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="/static/bootstrap3/css/bootstrap.min.css" >
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="/static/bootstrap3/css/bootstrap-theme.min.css">
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="/static/bootstrap3/js/bootstrap.min.js"></script>
+{% endblock %}
+{% block body %}
+    <div style="text-align: center">
+        <h1>这是模拟的一个支付页面</h1>
+    订单编号：{{order.oid}}<br>
+    应付金额：{{order.ototal}}<br>
+        <a href="javascript:;" class="btn btn-success" oid="{{ order.oid }}" id="pay">确认支付</a>
+        <a href="javascript:;" class="btn btn-primary back">返回</a>
+    </div>
+    <div style="height:400px">
+
+    </div>
+<script>
+    {#setTimeout('location.href="/user/order/";',3000);#}
+    $('.back').click(function () {
+        history.back()
+    })
+
+    $('#pay').click(function () {
+        var oid = $(this).attr('oid')
+
+        $.get('/order/pay_handle/',{'oid':oid},function (msg) {
+            if(msg.status){
+                layer.msg('支付成功',{icon:6})
+                setTimeout('location.href="/user/order/";',3000)
+            }else{
+                layer.msg('支付失败',{icon:5})
+                setTimeout('location.reload();',3000)
+            }
+        })
+    })
+</script>
+{% endblock %}

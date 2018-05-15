@@ -1,0 +1,166 @@
+{% extends 'goods/base.html' %}
+
+{% block body %}
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img src="/static/{{ goods_info.gpic }}"></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{ goods_info.gtitle }}</h3>
+			<p>{{ goods_info.gjianjie }}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{ goods_info.gprice }}</em></span>
+				<span class="show_unit">单  位：{{ goods_info.gunit }}</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1" sum="{{ goods_info.gkucun }}">
+					<a href="javascript:;" class="add fr">+</a>
+					<a href="javascript:;" class="minus fr">-</a>	
+				</div> 
+			</div>
+			<div class="clearfix" style="height: 50px;line-height: 50px;">
+				<div class="fl">库 存：</div>
+				<div class="goods_sum fl">
+					{{ goods_info.gkucun|add:-1 }}
+				</div>
+			</div>
+			<div class="total">总价：<em>{{ goods_info.gprice }}</em>元</div>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" gid="{{ goods_info.id }}" id="add_cart">加入购物车</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+					{% for goods in news %}
+					<li>
+						<a href="/detail_{{ goods.id }}"><img src="/static/{{ goods.gpic }}"></a>
+						<h4><a href="/detail_{{ goods.id }}">{{ goods.ttitle }}</a></h4>
+						<div class="prize">￥{{ goods.gprice }}</div>
+					</li>
+                    {% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt>商品详情：</dt>
+					<dd>{{ goods_info.gcontent|safe }} </dd>
+				</dl>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="add_jump"></div>
+
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+		$('#add_cart').click(function(){
+            var gid = $(this).attr('gid');
+            var count = $('.num_show').val();
+			$(".add_jump").stop().animate({
+
+				'left': $to_y+7,
+				'top': $to_x+7},
+				"fast", function() {
+					$(".add_jump").fadeOut('fast',function(){
+					    // 添加购物车
+                        $.get('/cart/add/',{'gid':gid,'count':count},function (msg) {
+                            console.log(msg)
+                            $('#show_count').html(msg.count);
+                        })
+
+					});
+
+			});
+		})
+
+        var num = parseInt($('.num_show').val());
+        var price = parseFloat($('.show_pirze em').html());
+        var sum = parseInt($('.goods_sum').html());
+
+        var f_num = 1
+
+
+        // 数量增加
+        $('.add').click(function () {
+            if(sum>0){
+                num++;
+                sum--;
+                next_sum_price = num * price;
+                $('.num_show').val(num);
+                $('.goods_sum').html(sum)
+                $('.total em').html(next_sum_price.toFixed(2))
+            }
+        })
+
+        // 数量减少
+        $('.minus').click(function () {
+            if(num>1){
+                num--;
+                sum++;
+                next_sum_price = num * price;
+                $('.num_show').val(num);
+                $('.goods_sum').html(sum)
+                $('.total em').html(next_sum_price.toFixed(2))
+            }
+        })
+
+        $('.num_show').keydown(function () {
+             var num = parseInt($('.num_show').val());
+             var sum = parseInt($('.goods_sum').html());
+            if(sum>num){
+
+             }else{
+                alert('您输入的数值不在允许的范围内!!!')
+                $('.num_show').val(f_num);
+            }
+        })
+
+        $('.num_show').focus(function () {
+            f_num = parseInt($('.num_show').val());
+        })
+
+
+        $('.num_show').blur(function () {
+            var num = parseInt($('.num_show').val());
+             if(sum>0 && num>0){
+                 next_sum = sum - num
+                 next_sum_price = num * price;
+                $('.num_show').val(num);
+                $('.goods_sum').html(next_sum)
+                $('.total em').html(next_sum_price.toFixed(2))
+             }
+        })
+
+	</script>
+{% endblock body %}
